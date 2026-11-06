@@ -1,0 +1,10 @@
+.env
+.env.*
+.venv/
+.venv312/
+venv/
+env/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+main_backup.py
