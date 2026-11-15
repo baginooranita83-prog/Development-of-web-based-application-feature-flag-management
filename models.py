@@ -273,3 +273,10 @@ class EvaluationStats(Base):
     enabled_count = Column(Integer, default=0, nullable=False)
     disabled_count = Column(Integer, default=0, nullable=False)
     recorded_at = Column(DateTime(timezone=True), server_default=func.now())
+    __table_args__ = (
+        UniqueConstraint(
+            "feature_flag_id",
+            "environment_id",
+            name="uq_evaluation_stats_flag_environment"
+        ),
+    )

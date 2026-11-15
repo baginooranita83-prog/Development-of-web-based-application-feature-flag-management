@@ -98,7 +98,7 @@ def matches_group_rule(
         actual_values = group_names
 
     elif rule.attribute == "group_id":
-        actual_values = group_ids
+        actual_values = [str(group_id) for group_id in group_ids]
 
     else:
         raise HTTPException(

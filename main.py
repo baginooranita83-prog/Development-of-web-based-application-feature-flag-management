@@ -18,7 +18,7 @@ from services.flag_service import (
     get_all_flags as get_all_flags_service,
     update_flag as update_flag_service,
 )
-from milestone3_api import create_milestone3_router
+from milestone3_api import create_milestone3_router, write_audit_log
 
 
 # Load environment settings
@@ -377,6 +377,17 @@ def create_flag(
 
     try:
         flag = create_flag_service(db, flag_name)
+        write_audit_log(
+            db=db,
+            admin_email=current_user,
+            action="CREATE",
+            resource_type="FEATURE_FLAG",
+            resource_id=flag.id,
+            details={
+                "flag_name": flag.flag_name,
+                "enabled": flag.enabled
+            }
+        )
 
         return {
             "id": flag.id,
@@ -420,6 +431,17 @@ def update_flag(
 
     try:
         flag = update_flag_service(db, flag_id, enabled)
+        write_audit_log(
+            db=db,
+            admin_email=current_user,
+            action="UPDATE",
+            resource_type="FEATURE_FLAG",
+            resource_id=flag.id,
+            details={
+                "flag_name": flag.flag_name,
+                "enabled": flag.enabled
+            }
+        )
 
         return {
             "id": flag.id,
@@ -460,6 +482,17 @@ def create_environment(
         db.add(environment)
         db.commit()
         db.refresh(environment)
+        write_audit_log(
+            db=db,
+            admin_email=current_user,
+            action="CREATE",
+            resource_type="ENVIRONMENT",
+            resource_id=environment.id,
+            details={
+                "name": environment.name,
+                "description": environment.description
+            }
+        )
 
         return {
             "id": environment.id,
@@ -533,6 +566,17 @@ def update_environment(
 
         db.commit()
         db.refresh(environment)
+        write_audit_log(
+            db=db,
+            admin_email=current_user,
+            action="UPDATE",
+            resource_type="ENVIRONMENT",
+            resource_id=environment.id,
+            details={
+                "name": environment.name,
+                "description": environment.description
+            }
+        )
 
         return {
             "id": environment.id,
@@ -577,9 +621,22 @@ def delete_environment(
                 status_code=409,
                 detail="Cannot delete this environment because feature flag versions are linked to it."
             )
+        deleted_environment_name = environment.name
+        deleted_environment_description = environment.description
 
         db.delete(environment)
         db.commit()
+        write_audit_log(
+            db=db,
+            admin_email=current_user,
+            action="DELETE",
+            resource_type="ENVIRONMENT",
+            resource_id=environment_id,
+            details={
+                "name": deleted_environment_name,
+                "description": deleted_environment_description
+            }
+        )
 
         return {
             "message": "Environment deleted successfully"
@@ -673,6 +730,17 @@ def create_environment_v1(
         db.add(new_environment)
         db.commit()
         db.refresh(new_environment)
+        write_audit_log(
+            db=db,
+            admin_email=current_user,
+            action="CREATE",
+            resource_type="ENVIRONMENT",
+            resource_id=new_environment.id,
+            details={
+                "name": new_environment.name,
+                "description": new_environment.description
+            }
+        )
 
         return {
             "id": new_environment.id,
@@ -740,6 +808,17 @@ def update_environment_v1(
 
         db.commit()
         db.refresh(environment)
+        write_audit_log(
+            db=db,
+            admin_email=current_user,
+            action="UPDATE",
+            resource_type="ENVIRONMENT",
+            resource_id=environment.id,
+            details={
+                "name": environment.name,
+                "description": environment.description
+            }
+        )
 
         return {
             "id": environment.id,
@@ -784,9 +863,23 @@ def delete_environment_v1(
                 status_code=409,
                 detail="Cannot delete environment because it is linked to other records"
             )
+        deleted_environment_name = environment.name
+        deleted_environment_description = environment.description
 
         db.delete(environment)
         db.commit()
+        write_audit_log(
+            db=db,
+            admin_email=current_user,
+            action="DELETE",
+            resource_type="ENVIRONMENT",
+            resource_id=environment_id,
+            details={
+                "name": deleted_environment_name,
+                "description": deleted_environment_description
+            }
+        )
+
 
         return {"message": "Environment deleted successfully"}
     finally:
@@ -860,6 +953,19 @@ def create_flag_v1(
         db.add(flag)
         db.commit()
         db.refresh(flag)
+        write_audit_log(
+            db=db,
+            admin_email=current_user,
+            action="CREATE",
+            resource_type="FEATURE_FLAG",
+            resource_id=flag.id,
+            details={
+                "flag_name": flag.flag_name,
+                "type": flag.flag_type,
+                "enabled": flag.enabled,
+                "environment_id": flag.environment_id
+            }
+        )
 
         return {
             "id": flag.id,
@@ -964,6 +1070,21 @@ def update_flag_v1(
 
         db.commit()
         db.refresh(flag)
+        write_audit_log(
+            db=db,
+            admin_email=current_user,
+            action="UPDATE",
+            resource_type="FEATURE_FLAG",
+            resource_id=flag.id,
+            details={
+                "flag_name": flag.flag_name,
+                "type": flag.flag_type,
+                "default_value": flag.default_value,
+                "enabled": flag.enabled,
+                "description": flag.description,
+                "environment_id": flag.environment_id
+            }
+        )
 
         return {
             "id": flag.id,

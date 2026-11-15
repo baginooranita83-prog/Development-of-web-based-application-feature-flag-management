@@ -6,8 +6,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import APIKeyHeader
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 
 from database import SessionLocal
+from models import AuditLog, User, EvaluationStats, FeatureFlag,Environment
 from services.targeting_service import (
     create_targeting_rule,
     get_targeting_rules,
@@ -76,6 +78,7 @@ evaluation_api_key_header = APIKeyHeader(
 
 
 def require_evaluation_api_key(
+
     api_key: Optional[str] = Depends(evaluation_api_key_header)
 ):
     configured_key = os.getenv("EVALUATION_API_KEY")
@@ -100,6 +103,34 @@ def require_evaluation_api_key(
 
 # ---------------- ROUTER FACTORY ----------------
 
+def write_audit_log(
+    db: Session,
+    admin_email: str,
+    action: str,
+    resource_type: str,
+    resource_id: Optional[int] = None,
+    details: Optional[dict] = None
+):
+    admin_user = db.query(User).filter(
+        User.email == admin_email
+    ).first()
+
+    if not admin_user:
+        raise HTTPException(
+            status_code=404,
+            detail="Administrator not found for audit logging"
+        )
+
+    audit_record = AuditLog(
+        user_id=admin_user.id,
+        action=action,
+        resource_type=resource_type,
+        resource_id=resource_id,
+        details=details
+    )
+
+    db.add(audit_record)
+    db.commit()
 def create_milestone3_router(admin_dependency):
     router = APIRouter()
 
@@ -130,6 +161,19 @@ def create_milestone3_router(admin_dependency):
             result=data.result,
             priority=data.priority
         )
+
+        write_audit_log(
+            db=db,
+            admin_email=admin,
+            action="CREATE",
+            resource_type="TARGETING_RULE",
+            resource_id=rule.id,
+            details={
+                "rule_name": rule.rule_name,
+                "flag_id": flag_id
+            }
+        )
+
 
         return {
             "id": rule.id,
@@ -187,6 +231,18 @@ def create_milestone3_router(admin_dependency):
             is_active=data.is_active
         )
 
+        write_audit_log(
+            db=db,
+            admin_email=admin,
+            action="UPDATE",
+            resource_type="TARGETING_RULE",
+            resource_id=rule.id,
+            details={
+                "rule_name": rule.rule_name
+            }
+        )
+
+
         return {
             "message": "Targeting rule updated successfully",
             "id": rule.id,
@@ -202,7 +258,21 @@ def create_milestone3_router(admin_dependency):
         db: Session = Depends(get_db),
         admin: str = Depends(admin_dependency)
     ):
-        return delete_targeting_rule(db, rule_id)
+        result = delete_targeting_rule(db, rule_id)
+
+        write_audit_log(
+            db=db,
+            admin_email=admin,
+            action="DELETE",
+            resource_type="TARGETING_RULE",
+            resource_id=rule_id,
+            details={
+                "message": result["message"]
+            }
+        )
+
+        return result
+
 
     # ---------------- USER GROUP APIs ----------------
 
@@ -217,6 +287,19 @@ def create_milestone3_router(admin_dependency):
             data.name.strip(),
             data.description
         )
+
+        write_audit_log(
+            db=db,
+            admin_email=admin,
+            action="CREATE",
+            resource_type="USER_GROUP",
+            resource_id=group.id,
+            details={
+                "group_name": group.name
+            }
+        )
+
+
 
         return {
             "id": group.id,
@@ -258,6 +341,19 @@ def create_milestone3_router(admin_dependency):
             user_id
         )
 
+        write_audit_log(
+            db=db,
+            admin_email=admin,
+            action="ADD_MEMBER",
+            resource_type="USER_GROUP",
+            resource_id=group_id,
+            details={
+                "end_user_id": user_id,
+                "membership_id": membership.id
+            }
+        )
+
+
         return {
             "id": membership.id,
             "group_id": membership.group_id,
@@ -269,20 +365,38 @@ def create_milestone3_router(admin_dependency):
         "/api/v1/groups/{group_id}/members/{user_id}",
         tags=["User Groups"]
     )
+
     def remove_group_member_api(
         group_id: int,
         user_id: int,
         db: Session = Depends(get_db),
         admin: str = Depends(admin_dependency)
     ):
-        return remove_user_from_group(
+        result = remove_user_from_group(
             db,
             group_id,
             user_id
         )
 
-    # ---------------- ROLLOUT AND KILL SWITCH APIs ----------------
+        write_audit_log(
+            db=db,
+            admin_email=admin,
+            action="REMOVE_MEMBER",
+            resource_type="USER_GROUP",
+            resource_id=group_id,
+            details={
+                "end_user_id": user_id
+            }
+        )
 
+        return result
+
+
+
+
+
+
+    # ---------------- ROLLOUT AND KILL SWITCH APIs ----------------
     @router.put(
         "/api/v1/flags/{flag_id}/rollout",
         tags=["Feature Flags"]
@@ -293,11 +407,26 @@ def create_milestone3_router(admin_dependency):
         db: Session = Depends(get_db),
         admin: str = Depends(admin_dependency)
     ):
-        return set_rollout_percentage(
+        result = set_rollout_percentage(
             db,
             flag_id,
             data.percentage
         )
+
+        write_audit_log(
+            db=db,
+            admin_email=admin,
+            action="UPDATE_ROLLOUT",
+            resource_type="FEATURE_FLAG",
+            resource_id=flag_id,
+            details={
+                "rollout_percentage": result["rollout_percentage"],
+                "flag_name": result["flag_name"]
+            }
+        )
+
+        return result
+
 
     @router.put(
         "/api/v1/flags/{flag_id}/toggle",
@@ -309,11 +438,27 @@ def create_milestone3_router(admin_dependency):
         db: Session = Depends(get_db),
         admin: str = Depends(admin_dependency)
     ):
-        return toggle_flag(
+
+        result = toggle_flag(
             db,
             flag_id,
             data.enabled
         )
+
+        write_audit_log(
+            db=db,
+            admin_email=admin,
+            action="TOGGLE",
+            resource_type="FEATURE_FLAG",
+            resource_id=flag_id,
+            details={
+                "enabled": data.enabled
+            }
+        )
+
+        return result
+
+
 
     # ---------------- FLAG EVALUATION API ----------------
 
@@ -329,11 +474,115 @@ def create_milestone3_router(admin_dependency):
             require_evaluation_api_key
         )
     ):
-        return evaluate_flag(
+        result = evaluate_flag(
             db=db,
             flag_id=flag_id,
             external_id=data.external_id,
             environment_name=data.environment
         )
 
+        flag = db.query(FeatureFlag).filter(
+            FeatureFlag.id == flag_id
+        ).first()
+
+        if not flag:
+            raise HTTPException(
+                status_code=404,
+                detail="Feature flag not found"
+            )
+
+        enabled_increment = 0
+        disabled_increment = 0
+
+        if flag.flag_type == "boolean" and type(result["value"]) is bool:
+            if result["value"] is True:
+                enabled_increment = 1
+            else:
+                disabled_increment = 1
+
+        stats_table = EvaluationStats.__table__
+
+        statement = pg_insert(stats_table).values(
+            feature_flag_id=flag_id,
+            environment_id=flag.environment_id,
+            evaluation_count=1,
+            enabled_count=enabled_increment,
+            disabled_count=disabled_increment
+        )
+
+        statement = statement.on_conflict_do_update(
+            constraint="uq_evaluation_stats_flag_environment",
+            set_={
+                "evaluation_count": stats_table.c.evaluation_count + 1,
+                "enabled_count": stats_table.c.enabled_count + enabled_increment,
+                "disabled_count": stats_table.c.disabled_count + disabled_increment,
+            }
+        )
+
+        db.execute(statement)
+        db.commit()
+
+        return result
+
+    # ---------------- ANALYTICS API ----------------
+
+    @router.get("/api/v1/analytics", tags=["Analytics"])
+    def get_analytics_api(
+        db: Session = Depends(get_db),
+        admin: str = Depends(admin_dependency)
+    ):
+        records = (
+            db.query(EvaluationStats, FeatureFlag, Environment)
+            .join(
+                FeatureFlag,
+                EvaluationStats.feature_flag_id == FeatureFlag.id
+            )
+            .outerjoin(
+                Environment,
+                EvaluationStats.environment_id == Environment.id
+            )
+            .order_by(EvaluationStats.recorded_at.desc())
+            .all()
+        )
+
+        return [
+            {
+                "feature_flag_id": stats.feature_flag_id,
+                "flag_name": flag.flag_name,
+                "environment": environment.name if environment else None,
+                "evaluation_count": stats.evaluation_count,
+                "enabled_count": stats.enabled_count,
+                "disabled_count": stats.disabled_count,
+                "recorded_at": stats.recorded_at
+            }
+            for stats, flag, environment in records
+        ]
+
+    # ---------------- AUDIT LOGS API ----------------
+
+    @router.get("/api/v1/audit-logs", tags=["Audit Logs"])
+    def get_audit_logs_api(
+        db: Session = Depends(get_db),
+        admin: str = Depends(admin_dependency)
+    ):
+        records = (
+            db.query(AuditLog, User.email)
+            .outerjoin(User, AuditLog.user_id == User.id)
+            .order_by(AuditLog.created_at.desc())
+            .limit(100)
+            .all()
+        )
+
+        return [
+            {
+                "id": log.id,
+                "admin_email": email,
+                "action": log.action,
+                "resource_type": log.resource_type,
+                "resource_id": log.resource_id,
+                "details": log.details,
+                "created_at": log.created_at
+            }
+            for log, email in records
+        ]
     return router

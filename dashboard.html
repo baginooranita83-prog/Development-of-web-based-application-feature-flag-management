@@ -5,33 +5,557 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Feature Flag Management System</title>
 <style>
-body{font-family:Arial;background:#f2f4f8;margin:0;padding:20px 12px}
-.container{max-width:900px;margin:20px auto;background:white;padding:24px;border-radius:10px;box-shadow:0 2px 10px #ccc}
-h2{text-align:center;color:#1e3a8a}
-h3{margin-top:28px}
-input,select,textarea,button{width:100%;box-sizing:border-box;padding:11px;margin-top:9px;font-size:15px}
-button{background:#2563eb;color:white;border:0;border-radius:5px;cursor:pointer}
-button:hover{opacity:.88}
-.danger{background:#dc2626}
-.secondary{background:#64748b}
-.item{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid #ddd}
-.item-info{flex:1;overflow-wrap:anywhere}
-.actions,.top-buttons{display:flex;flex-wrap:wrap;gap:8px}
-.actions button{width:auto;margin-top:0}
-#message{overflow-wrap:anywhere}
-@media(max-width:600px){.item,.top-buttons{flex-direction:column;align-items:stretch}.actions{flex-direction:column}}
+/* ===== PROFESSIONAL DASHBOARD DESIGN ===== */
+/* ===== DASHBOARD PAGE HEADER ===== */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.eyebrow {
+    color: #0d9488;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin: 0 0 6px;
+}
+
+.page-header h1 {
+    color: #172554;
+    font-size: 30px;
+    margin: 0;
+    font-weight: 700;
+}
+
+.page-subtitle {
+    color: #64748b;
+    font-size: 14px;
+    margin: 6px 0 0;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #f1f5f9;
+    color: #1e293b;
+    margin: 0;
+    padding: 30px 18px;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1180px;
+    margin: 15px auto;
+    background: #ffffff;
+    padding: 32px;
+    border-radius: 16px;
+    box-shadow: 0 5px 25px rgba(15, 23, 42, 0.07);
+}
+
+h2 {
+    text-align: left;
+    color: #172554;
+    font-size: 28px;
+    margin: 0 0 8px;
+    font-weight: 700;
+}
+
+h3 {
+    color: #1e3a8a;
+    font-size: 19px;
+    margin-top: 32px;
+    margin-bottom: 14px;
+    font-weight: 650;
+}
+
+label {
+    display: block;
+    margin-top: 14px;
+    color: #334155;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+input:not([type="checkbox"]),
+select,
+textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 14px;
+    margin-top: 7px;
+    font-size: 14px;
+    font-family: inherit;
+    color: #1e293b;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input:not([type="checkbox"]):focus,
+select:focus,
+textarea:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+input[type="checkbox"] {
+    width: auto;
+    accent-color: #2563eb;
+    margin-right: 7px;
+}
+
+textarea {
+    resize: vertical;
+}
+
+button {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 11px 16px;
+    margin-top: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    background: #2563eb;
+    color: #ffffff;
+    border: 0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+}
+
+button:hover {
+    background: #1d4ed8;
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+.danger {
+    background: #dc2626;
+}
+
+.danger:hover {
+    background: #b91c1c;
+}
+
+.secondary {
+    background: #334155;
+}
+
+.secondary:hover {
+    background: #1e293b;
+}
+
+.item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 18px;
+    margin: 12px 0;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+}
+
+.item-info {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.item-info strong {
+    display: block;
+    color: #172554;
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+.actions,
+.top-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+}
+
+.actions button {
+    width: auto;
+    min-width: 85px;
+    margin-top: 0;
+}
+
+.top-buttons {
+    justify-content: flex-end;
+    margin: 18px 0;
+}
+
+.top-buttons button {
+    width: auto;
+    min-width: 145px;
+    margin-top: 0;
+}
+
+#message {
+    overflow-wrap: anywhere;
+    color: #0f766e;
+    font-weight: 600;
+    margin: 12px 0;
+}
+
+#flagsList,
+#environmentsList {
+    margin-top: 12px;
+}
+
+form {
+    padding: 20px;
+    margin-top: 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+}
+
+@media (max-width: 700px) {
+    body {
+        padding: 12px;
+    }
+
+    .container {
+        padding: 19px;
+        margin: 8px auto;
+    }
+
+    h2 {
+        font-size: 23px;
+    }
+
+    .item,
+    .top-buttons {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .actions {
+        flex-direction: column;
+    }
+
+    .actions button,
+    .top-buttons button {
+        width: 100%;
+    }
+}
+/* ===== DASHBOARD OVERVIEW CARDS ===== */
+
+.overview-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+    margin: 24px 0;
+}
+
+.overview-card {
+    padding: 22px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    box-shadow: 0 3px 12px rgba(15, 23, 42, 0.05);
+}
+
+.overview-card span {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.overview-card h2 {
+    text-align: left;
+    font-size: 30px;
+    margin: 0;
+}
+
+.blue-card {
+    border-left: 4px solid #2563eb;
+}
+
+.green-card {
+    border-left: 4px solid #16a34a;
+}
+
+.orange-card {
+    border-left: 4px solid #ea580c;
+}
+
+.teal-card {
+    border-left: 4px solid #0d9488;
+}
+
+@media (max-width: 800px) {
+    .overview-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 450px) {
+    .overview-grid {
+        grid-template-columns: 1fr;
+    }
+}
+/* ===== TWO-COLUMN MANAGEMENT LAYOUT ===== */
+.management-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+    margin-top: 25px;
+    align-items: start;
+}
+
+.panel {
+    min-width: 0;
+    padding: 22px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    box-shadow: 0 3px 14px rgba(15, 23, 42, 0.05);
+}
+
+.panel h3 {
+    margin-top: 8px;
+}
+
+@media (max-width: 850px) {
+    .management-grid {
+        grid-template-columns: 1fr;
+    }
+}
+/* ===== MAIN APPLICATION LAYOUT ===== */
+body {
+    padding: 0;
+}
+
+.app-layout {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+}
+
+.sidebar {
+    width: 245px;
+    flex: 0 0 245px;
+    min-height: 100vh;
+    padding: 28px 18px;
+    background: #172554;
+    color: #ffffff;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+}
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 19px;
+    font-weight: 700;
+    margin-bottom: 45px;
+}
+
+.brand-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: #2563eb;
+    color: white;
+    font-size: 14px;
+}
+
+.sidebar-label {
+    color: #94a3b8;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    margin: 25px 10px 12px;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.nav-link {
+    display: block;
+    padding: 12px 14px;
+    color: #cbd5e1;
+    text-decoration: none;
+    font-size: 14px;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.main-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.main-content .container {
+    width: 100%;
+    max-width: none;
+    min-height: 100vh;
+    margin: 0;
+    border-radius: 0;
+    padding: 34px;
+}
+
+/* ===== RESPONSIVE SIDEBAR ===== */
+@media (max-width: 850px) {
+    .app-layout {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        flex: none;
+        min-height: auto;
+        height: auto;
+        position: static;
+    }
+
+    .sidebar-brand {
+        margin-bottom: 15px;
+    }
+
+    .sidebar-nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .sidebar-label {
+        margin-top: 15px;
+    }
+
+    .main-content .container {
+        padding: 20px;
+    }
+}
 </style>
+
 </head>
 <body>
+    <!-- MAIN APPLICATION LAYOUT -->
+<div class="app-layout">
+
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="sidebar-brand">
+            <span class="brand-icon">FF</span>
+            <span>FeatureFlow</span>
+        </div>
+
+        <p class="sidebar-label">WORKSPACE</p>
+
+        <nav class="sidebar-nav">
+            <a href="#dashboard-section" class="nav-link active" data-view="dashboard-view">
+    Dashboard
+</a>
+
+
+
+
+            <a href="#flags-section" class="nav-link" data-view="flags-section">
+    Feature Flags
+</a>
+
+
+
+            <a href="#environments-section" class="nav-link" data-view="environments-section">
+    Environments
+</a>
+
+
+
+            <a href="#groups-section" class="nav-link" data-view="groups-section">
+    User Groups
+</a>
+<a href="#audit-logs-section" class="nav-link" data-view="audit-logs-section">Audit Logs</a>
+
+<a href="#analytics-section" class="nav-link" data-view="analytics-section">
+    Analytics
+</a>
+
+
+        </nav>
+
+        <p class="sidebar-label">ACCOUNT</p>
+
+        <div class="nav-link">Profile</div>
+
+    </aside>
+
+    <!-- MAIN WORKSPACE -->
+    <main class="main-content">
 <div class="container">
-<h2>Feature Flag Management System</h2>
-<h3>Dashboard</h3>
+<div class="page-header" id="dashboard-section">
+    <div>
+        <p class="eyebrow">CONTROL CENTER</p>
+        <h1>Feature Flag Dashboard</h1>
+        <p class="page-subtitle">Manage feature flags and control your application releases.</p>
+    </div>
+</div>
 
 <div class="top-buttons">
 <button id="refreshButton" type="button">Refresh Dashboard</button>
 <button id="logoutButton" class="secondary" type="button">Logout</button>
 </div>
 <p id="message" role="status"></p>
+<!-- DASHBOARD OVERVIEW -->
+<div class="overview-grid" id="dashboard-view">
+
+    <div class="overview-card blue-card">
+        <span>Total Feature Flags</span>
+        <h2 id="totalFlagsCount">—</h2>
+    </div>
+
+    <div class="overview-card green-card">
+        <span>Enabled Flags</span>
+        <h2 id="enabledFlagsCount">—</h2>
+    </div>
+
+    <div class="overview-card orange-card">
+        <span>Disabled Flags</span>
+        <h2 id="disabledFlagsCount">—</h2>
+    </div>
+
+    <div class="overview-card teal-card">
+        <span>Environments</span>
+        <h2 id="totalEnvironmentsCount">—</h2>
+    </div>
+
+</div>
+<!-- END DASHBOARD OVERVIEW -->
+ <!-- MANAGEMENT SECTIONS -->
+<div class="management-grid">
+
+    <section class="panel" id="flags-section">
 
 <h3>Create a Feature Flag</h3>
 <form id="flagForm">
@@ -63,6 +587,9 @@ button:hover{opacity:.88}
 
 <h3>Your Feature Flags</h3>
 <div id="flagsList">Loading feature flags...</div>
+</section>
+
+<section class="panel" id="environments-section">
 
 <h3>Create an Environment</h3>
 <form id="environmentForm">
@@ -73,9 +600,105 @@ button:hover{opacity:.88}
 
 <h3>Your Environments</h3>
 <div id="environmentsList">Loading environments...</div>
+
+</section>
+<!-- USER GROUPS SECTION -->
+<section class="panel" id="groups-section" style="display:none;">
+    <h3>User Groups</h3>
+    <p>Create and manage groups of application users.</p>
+
+    <form id="groupForm">
+        <label for="groupName">Group Name</label>
+        <input type="text" id="groupName" required>
+
+        <label for="groupDescription">Description</label>
+        <textarea id="groupDescription"></textarea>
+
+        <button type="submit">Create User Group</button>
+    </form>
+
+    <h3>Add User to a Group</h3>
+
+<form id="addMemberForm">
+    <label for="memberGroup">Select Group</label>
+    <select id="memberGroup" required>
+        <option value="">Select a group</option>
+    </select>
+
+    <label for="memberUserId">User ID</label>
+    <input
+        type="number"
+        id="memberUserId"
+        min="1"
+        step="1"
+        placeholder="Enter existing user ID"
+        required
+    >
+
+    <button type="submit">Add Member</button>
+</form>
+
+<h3>Remove User from a Group</h3>
+
+<form id="removeMemberForm">
+    <label for="removeMemberGroup">Select Group</label>
+    <select id="removeMemberGroup" required>
+        <option value="">Select a group</option>
+    </select>
+
+    <label for="removeMemberUserId">User ID</label>
+    <input
+        type="number"
+        id="removeMemberUserId"
+        min="1"
+        step="1"
+        placeholder="Enter existing user ID"
+        required
+    >
+
+    <button type="submit" class="danger">Remove Member</button>
+</form>
+
+    <h3>Existing User Groups</h3>
+    <div id="groupsList">Loading user groups...</div>
+</section>
+<!-- END USER GROUPS SECTION -->
+<!-- AUDIT LOGS SECTION -->
+<section class="panel" id="audit-logs-section" style="display:none;">
+    <h3>Audit Logs</h3>
+    <p>Track administrative activities and feature management changes.</p>
+
+    <div style="display:flex; justify-content:flex-end; margin-bottom:15px;">
+        <button type="button" id="refreshAuditLogsButton">
+            Refresh Logs
+        </button>
+    </div>
+
+    <div id="auditLogsList">Loading audit logs...</div>
+</section>
+<!-- END AUDIT LOGS SECTION -->
+ <!-- ANALYTICS SECTION -->
+<section class="panel" id="analytics-section" style="display:none;">
+    <h3>Feature Flag Analytics</h3>
+    <p>Track feature flag evaluations and their results.</p>
+
+    <div style="display:flex; justify-content:flex-end; margin-bottom:15px;">
+        <button type="button" id="refreshAnalyticsButton">
+            Refresh Analytics
+        </button>
+    </div>
+
+    <div id="analyticsList">Loading analytics...</div>
+</section>
+<!-- END ANALYTICS SECTION -->
+</div>
+</div>
+</main>
 </div>
 
 <script>
+
+
 const token = localStorage.getItem("access_token");
 const message = document.getElementById("message");
 const flagsList = document.getElementById("flagsList");
@@ -91,7 +714,7 @@ function showMessage(text) {
     message.textContent = text;
 }
 
-async function apiRequest(url, options = {}) {
+ async function apiRequest(url, options = {}) {
     const response = await fetch(url, {
         ...options,
         headers: {
@@ -134,6 +757,7 @@ async function loadEnvironments() {
     if (!Array.isArray(data)) throw new Error("Unexpected environment response.");
 
     environments = data;
+    document.getElementById("totalEnvironmentsCount").textContent = data.length;
 
     const oldValue = environmentSelect.value;
     environmentSelect.replaceChildren();
@@ -243,6 +867,216 @@ async function loadEnvironments() {
     });
 }
 
+// LOAD AUDIT LOGS
+async function loadAuditLogs() {
+    const auditLogsList = document.getElementById("auditLogsList");
+    auditLogsList.textContent = "Loading audit logs...";
+
+    try {
+        const response = await apiRequest("/api/v1/audit-logs");
+        const data = await readResponse(response);
+
+        if (!response.ok) {
+            throw new Error(data.detail || "Could not load audit logs.");
+        }
+
+        if (!Array.isArray(data)) {
+            throw new Error("Unexpected audit logs response.");
+        }
+
+        auditLogsList.replaceChildren();
+
+        if (!data.length) {
+            auditLogsList.textContent = "No audit logs recorded yet.";
+            return;
+        }
+
+        data.forEach(log => {
+            const row = document.createElement("div");
+            row.className = "item";
+
+            const info = document.createElement("div");
+            info.className = "item-info";
+
+            const title = document.createElement("strong");
+            title.textContent = log.action + " - " + log.resource_type;
+
+            const admin = document.createElement("div");
+            admin.textContent = "Admin: " + (log.admin_email || "Unknown");
+
+            const resource = document.createElement("div");
+            resource.textContent = "Resource ID: " + (log.resource_id ?? "N/A");
+
+            const date = document.createElement("div");
+            const timestamp = log.created_at
+                ? new Date(log.created_at).toLocaleString()
+                : "Date unavailable";
+            date.textContent = "Date: " + timestamp;
+
+            const details = document.createElement("div");
+            details.textContent = "Details: " +
+                (log.details ? JSON.stringify(log.details) : "None");
+
+            info.append(title, admin, resource, date, details);
+            row.appendChild(info);
+            auditLogsList.appendChild(row);
+        });
+
+    } catch (error) {
+        auditLogsList.textContent = error.message || "Could not load audit logs.";
+    }
+}
+
+// LOAD ANALYTICS
+async function loadAnalytics() {
+    const analyticsList = document.getElementById("analyticsList");
+    analyticsList.textContent = "Loading analytics...";
+
+    try {
+        const response = await apiRequest("/api/v1/analytics");
+        const data = await readResponse(response);
+
+        if (!response.ok) {
+            throw new Error(data.detail || "Could not load analytics.");
+        }
+
+        if (!Array.isArray(data)) {
+            throw new Error("Unexpected analytics response.");
+        }
+
+        analyticsList.replaceChildren();
+
+        if (data.length === 0) {
+            analyticsList.textContent = "No analytics data available yet.";
+            return;
+        }
+
+        data.forEach(record => {
+            const row = document.createElement("div");
+            row.className = "item";
+
+            const info = document.createElement("div");
+            info.className = "item-info";
+
+            const title = document.createElement("strong");
+            title.textContent = record.flag_name || "Unknown flag";
+
+            const environment = document.createElement("div");
+            environment.textContent =
+                "Environment: " + (record.environment || "None");
+
+            const total = document.createElement("div");
+            total.textContent =
+                "Total Evaluations: " + record.evaluation_count;
+
+            const enabled = document.createElement("div");
+            enabled.textContent =
+                "Enabled: " + record.enabled_count;
+
+            const disabled = document.createElement("div");
+            disabled.textContent =
+                "Disabled: " + record.disabled_count;
+
+            const date = document.createElement("div");
+            date.textContent = "Last Recorded: " +
+                (record.recorded_at
+                    ? new Date(record.recorded_at).toLocaleString()
+                    : "Unavailable");
+
+            info.append(title, environment, total, enabled, disabled, date);
+            row.appendChild(info);
+            analyticsList.appendChild(row);
+        });
+
+    } catch (error) {
+        analyticsList.textContent =
+            error.message || "Could not load analytics.";
+    }
+}
+
+// LOAD USER GROUPS
+async function loadGroups() {
+    const groupsList = document.getElementById("groupsList");
+    groupsList.textContent = "Loading user groups...";
+
+    try {
+        const response = await apiRequest("/api/v1/groups");
+        const data = await readResponse(response);
+
+        if (!response.ok) {
+            throw new Error(data.detail || "Could not load user groups.");
+        }
+
+        if (!Array.isArray(data)) {
+            throw new Error("Unexpected user groups response.");
+        }
+
+        const memberGroupSelect = document.getElementById("memberGroup");
+        const removeMemberGroupSelect = document.getElementById("removeMemberGroup");
+const previousRemoveGroupId = removeMemberGroupSelect.value;
+const previousGroupId = memberGroupSelect.value;
+
+memberGroupSelect.replaceChildren();
+removeMemberGroupSelect.replaceChildren();
+
+const placeholder = document.createElement("option");
+placeholder.value = "";
+placeholder.textContent = "Select a group";
+memberGroupSelect.appendChild(placeholder);
+const removePlaceholder = document.createElement("option");
+removePlaceholder.value = "";
+removePlaceholder.textContent = "Select a group";
+removeMemberGroupSelect.appendChild(removePlaceholder);
+
+data.forEach(group => {
+    const option = document.createElement("option");
+    option.value = group.id;
+    option.textContent = group.name;
+    memberGroupSelect.appendChild(option);
+    const removeOption = document.createElement("option");
+removeOption.value = group.id;
+removeOption.textContent = group.name;
+removeMemberGroupSelect.appendChild(removeOption);
+});
+
+if (data.some(group => String(group.id) === previousGroupId)) {
+    memberGroupSelect.value = previousGroupId;
+}
+
+if (data.some(group => String(group.id) === previousRemoveGroupId)) {
+    removeMemberGroupSelect.value = previousRemoveGroupId;
+}
+
+        groupsList.replaceChildren();
+
+        if (data.length === 0) {
+            groupsList.textContent = "No user groups created yet.";
+            return;
+        }
+
+        data.forEach(group => {
+            const row = document.createElement("div");
+            row.className = "item";
+
+            const info = document.createElement("div");
+            info.className = "item-info";
+
+            const title = document.createElement("strong");
+            title.textContent = group.name;
+
+            const description = document.createElement("div");
+            description.textContent = group.description || "No description";
+
+            info.append(title, description);
+            row.appendChild(info);
+            groupsList.appendChild(row);
+        });
+
+    } catch (error) {
+        groupsList.textContent = error.message || "Could not load user groups.";
+    }
+}
+
 // LOAD FLAGS
 async function loadFlags() {
     flagsList.textContent = "Loading feature flags...";
@@ -253,7 +1087,15 @@ async function loadFlags() {
     if (!response.ok) throw new Error(data.detail || "Could not load flags.");
     if (!Array.isArray(data)) throw new Error("Unexpected flag response.");
 
-    flagsList.replaceChildren();
+// UPDATE DASHBOARD OVERVIEW
+const enabledCount = data.filter(flag => flag.enabled === true).length;
+const disabledCount = data.filter(flag => flag.enabled === false).length;
+
+document.getElementById("totalFlagsCount").textContent = data.length;
+document.getElementById("enabledFlagsCount").textContent = enabledCount;
+document.getElementById("disabledFlagsCount").textContent = disabledCount;
+
+flagsList.replaceChildren();
 
     if (!data.length) {
         flagsList.textContent = "No feature flags created yet.";
@@ -433,6 +1275,122 @@ document.getElementById("flagForm").addEventListener("submit", async event => {
     }
 });
 
+// ADD USER TO GROUP
+document.getElementById("addMemberForm").addEventListener("submit", async event => {
+    event.preventDefault();
+
+    const groupId = document.getElementById("memberGroup").value;
+    const userId = Number(document.getElementById("memberUserId").value);
+
+    if (!groupId) {
+        showMessage("Please select a group.");
+        return;
+    }
+
+    if (!Number.isInteger(userId) || userId < 1) {
+        showMessage("Please enter a valid User ID.");
+        return;
+    }
+
+    try {
+        const response = await apiRequest(
+            "/api/v1/groups/" + groupId + "/members?user_id=" + userId,
+            { method: "POST" }
+        );
+
+        const result = await readResponse(response);
+
+        if (!response.ok) {
+            throw new Error(result.detail || "Could not add user to group.");
+        }
+
+        document.getElementById("memberUserId").value = "";
+        showMessage(result.message || "User added to group successfully.");
+
+    } catch (error) {
+        showError(error);
+    }
+});
+
+// REMOVE USER FROM GROUP
+document.getElementById("removeMemberForm").addEventListener("submit", async event => {
+    event.preventDefault();
+
+    const groupId = document.getElementById("removeMemberGroup").value;
+    const userId = Number(document.getElementById("removeMemberUserId").value);
+
+    if (!groupId) {
+        showMessage("Please select a group.");
+        return;
+    }
+
+    if (!Number.isInteger(userId) || userId < 1) {
+        showMessage("Please enter a valid User ID.");
+        return;
+    }
+
+    if (!confirm("Remove user " + userId + " from this group?")) {
+        return;
+    }
+
+    try {
+        const response = await apiRequest(
+            "/api/v1/groups/" + groupId + "/members/" + userId,
+            { method: "DELETE" }
+        );
+
+        const result = await readResponse(response);
+
+        if (!response.ok) {
+            throw new Error(result.detail || "Could not remove user from group.");
+        }
+
+        document.getElementById("removeMemberUserId").value = "";
+        showMessage(result.message || "User removed from group successfully.");
+
+    } catch (error) {
+        showError(error);
+    }
+});
+
+
+
+// CREATE USER GROUP
+document.getElementById("groupForm").addEventListener("submit", async event => {
+    event.preventDefault();
+
+    const name = document.getElementById("groupName").value.trim();
+    const description = document.getElementById("groupDescription").value.trim();
+
+    if (!name) {
+        showMessage("Please enter a group name.");
+        return;
+    }
+
+    try {
+        const response = await apiRequest("/api/v1/groups", {
+            method: "POST",
+            body: JSON.stringify({
+                name: name,
+                description: description || null
+            })
+        });
+
+        const result = await readResponse(response);
+
+        if (!response.ok) {
+            throw new Error(result.detail || "Could not create user group.");
+        }
+
+        event.target.reset();
+        showMessage("User group created successfully.");
+        await loadGroups();
+
+    } catch (error) {
+        showError(error);
+    }
+});
+
 // CREATE ENVIRONMENT
 document.getElementById("environmentForm").addEventListener("submit", async event => {
     event.preventDefault();
@@ -463,6 +1421,7 @@ async function refreshDashboard() {
     try {
         await loadEnvironments();
         await loadFlags();
+        await loadGroups();
     } catch (e) {
         showError(e);
     }
@@ -474,6 +1433,79 @@ document.getElementById("logoutButton").addEventListener("click", () => {
     localStorage.removeItem("access_token");
     window.location.replace("/");
 });
+
+// ===== SIDEBAR NAVIGATION =====
+const overviewView = document.getElementById("dashboard-view");
+const managementGrid = document.querySelector(".management-grid");
+const flagsSection = document.getElementById("flags-section");
+const environmentsSection = document.getElementById("environments-section");
+const groupsSection = document.getElementById("groups-section");
+const auditLogsSection = document.getElementById("audit-logs-section");
+const analyticsSection = document.getElementById("analytics-section");
+
+function showDashboardView(viewName) {
+    overviewView.style.display = "none";
+    managementGrid.style.display = "none";
+    groupsSection.style.display = "none";
+    auditLogsSection.style.display = "none";
+    analyticsSection.style.display = "none";
+
+    if (viewName === "dashboard-view") {
+        overviewView.style.display = "grid";
+    }
+
+    if (viewName === "flags-section") {
+        managementGrid.style.display = "grid";
+        flagsSection.style.display = "block";
+        environmentsSection.style.display = "none";
+    }
+
+    if (viewName === "environments-section") {
+        managementGrid.style.display = "grid";
+        flagsSection.style.display = "none";
+        environmentsSection.style.display = "block";
+    }
+
+    if (viewName === "groups-section") {
+    managementGrid.style.display = "grid";
+    flagsSection.style.display = "none";
+    environmentsSection.style.display = "none";
+    groupsSection.style.display = "block";
+}
+if (viewName === "audit-logs-section") {
+    managementGrid.style.display = "grid";
+    flagsSection.style.display = "none";
+    environmentsSection.style.display = "none";
+    groupsSection.style.display = "none";
+    auditLogsSection.style.display = "block";
+    loadAuditLogs();
+}
+
+if (viewName === "analytics-section") {
+    managementGrid.style.display = "grid";
+    flagsSection.style.display = "none";
+    environmentsSection.style.display = "none";
+    groupsSection.style.display = "none";
+    auditLogsSection.style.display = "none";
+    analyticsSection.style.display = "block";
+    loadAnalytics();
+}
+
+    document.querySelectorAll(".sidebar-nav .nav-link").forEach(link => {
+        link.classList.toggle("active", link.dataset.view === viewName);
+    });
+}
+
+document.querySelectorAll(".sidebar-nav .nav-link[data-view]").forEach(link => {
+    link.addEventListener("click", event => {
+        event.preventDefault();
+        showDashboardView(link.dataset.view);
+    });
+});
+document.getElementById("refreshAuditLogsButton").addEventListener("click", loadAuditLogs);
+document.getElementById("refreshAnalyticsButton").addEventListener("click", loadAnalytics);
+
+showDashboardView("dashboard-view");
 
 if (token) refreshDashboard();
 </script>

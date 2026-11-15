@@ -1,4 +1,4 @@
-.env
+﻿.env
 .env.*
 .venv/
 .venv312/
@@ -8,3 +8,8 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 main_backup.py
+
+alembic/models_backup.py
+main_before_admin_fix.py
+models_milestone2_backup.py
+dashboard_before_redesign.html
